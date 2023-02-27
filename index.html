@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>vrm test</title>
-</head><body>
+<title>walking radish vrm</title>
+</head><body style="background-color: black;">
 
 <!-- About import maps, see the Three.js official docs: -->
 <!-- https://threejs.org/docs/#manual/en/introduction/Installation -->
@@ -10,7 +10,7 @@
 {
   "imports": {
     "three": "https://code4fukui.github.io/three.js/build/three.module.js",
-    "three/addons/": "https://code4fukui.github.io/three.js/examples/jsm/",
+    "three/addons/": "https://code4fukui.github.io/three.js_examples/jsm/",
     "@pixiv/three-vrm": "https://pixiv.github.io/three-vrm/packages/three-vrm/lib/three-vrm.module.js"
   }
 }
@@ -33,11 +33,22 @@ export class PromiseGLTFLoader extends GLTFLoader {
 };
 
 // renderer
+const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.xr.enabled = true;
+renderer.xr.cameraAutoUpdate = false;
+
+/*
 const renderer = new THREE.WebGLRenderer();
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
+*/
 document.body.appendChild(renderer.domElement);
+
 
 // camera
 const camera = new THREE.PerspectiveCamera(30.0, window.innerWidth / window.innerHeight, 0.1, 20.0);
@@ -86,7 +97,7 @@ console.log(vrm);
 console.log(vrm.humanoid.normalizedHumanBones);
 
 // helpers
-scene.add(new THREE.GridHelper(10, 10));
+//scene.add(new THREE.GridHelper(10, 10));
 //scene.add(new THREE.AxesHelper(5));
 
 // animate
@@ -94,7 +105,6 @@ const clock = new THREE.Clock();
 let t = 0;
 
 const animate = () => {
-  requestAnimationFrame(animate);
   const dt = clock.getDelta();
   t += dt;
   // tweak bones
@@ -114,18 +124,29 @@ const animate = () => {
 
   // update vrm
   vrm.update(dt);
+  renderer.xr.updateCamera(camera); // for AR
   renderer.render(scene, camera);
 };
-animate();
+renderer.setAnimationLoop(animate);
 
 // for AR
 const sessionInit = {
   requiredFeatures: [
-    "hand-tracking",
     "local-floor",
+  ],
+  optionalFeatures: [
+    "bounded-floor",
+    "hand-tracking",
   ],
 };
 document.body.appendChild(ARButton.createButton(renderer, sessionInit));
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
 </script>
 
 </body></html>
