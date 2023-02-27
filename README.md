@@ -1,5 +1,7 @@
 # vrm-test
 
+- [DEMO](https://code4fukui.github.io/vr-radish/)
+
 ## three-vrm
 
 - [three-vrm docs](https://pixiv.github.io/three-vrm/packages/three-vrm/docs/)
